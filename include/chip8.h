@@ -6,12 +6,15 @@
 #include "chip8registers.h"
 #include "chip8stack.h"
 #include "chip8keyboard.h"
+#include "chip8screen.h"
 struct chip8
 {
     struct chip8_memory memory; // Geheugen voor de CHIP-8
     struct chip8_stack stack; // Stack voor subroutine management
     struct chip8_registers registers; // Registers voor de CHIP-8
-    struct chip8_keyboard keyboard;
+    struct chip8_keyboard keyboard; // Virtual keyboard
+    struct chip8_screen screen; // Scherm voor de CHIP-8
 };
 
+void chip8_init(struct chip8 *chip8);
 #endif 
