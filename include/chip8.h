@@ -6,7 +6,6 @@
 #include "chip8registers.h"
 #include "chip8stack.h"
 #include "chip8keyboard.h"
-
 struct chip8
 {
     struct chip8_memory memory; // Geheugen voor de CHIP-8
