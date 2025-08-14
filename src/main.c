@@ -15,9 +15,39 @@ const char keyboard_map[CHIP8_TOTAL_KEYS] = {
 int main(int argc, char *argv[])
 {
     printf("CHIP-8 Emulator started.\n");
+
+    if (argc < 2)
+    {
+        printf("You must provide a file to load\n");
+        return -1;
+    }
+
+    const char* filename = argv[1];
+    printf("Loading file: %s\n", filename);
+
+    FILE* f = fopen(filename, "rb");
+    if (!f)
+    {
+        printf("Failed to open file: %s\n", filename);
+        return -1;
+    }
+    fseek(f, 0, SEEK_END); // Zet de bestandspositie naar het einde
+    long size = ftell(f); // Verkrijg de grootte van het bestand
+    fseek(f, 0, SEEK_SET); // Zet de bestandspositie terug naar het begin
+
+    char buf[size];
+    int res = fread(buf, size,1, f); // Lees de inhoud van het bestand in de buffer
+    if (res !=1)
+    {
+        printf("Failed to read file: %s\n", filename);
+        fclose(f);
+        return -1;
+    }
+
     struct chip8 chip8;
     chip8_init(&chip8);
-    chip8.registers.sound_timer = 30;
+    chip8_load(&chip8, buf, size);
+
     chip8_screen_draw_sprite(&chip8.screen, 62, 10, &chip8.memory.memory[0x00], 5); // Voorbeeld om een sprite te tekenen
 
 
@@ -98,6 +128,9 @@ int main(int argc, char *argv[])
             Beep(25000, 100 * chip8.registers.sound_timer); // Speel een piep geluid af
             chip8.registers.sound_timer = 0;
         }
+        unsigned short opcode = chip8_memory_get_short(&chip8.memory, chip8.registers.PC);
+        chip8_exec(&chip8, opcode); // Voer de instructie uit
+        chip8.registers.PC += 2; // Verhoog de Program Counter met 2, omdat de instructies 2 bytes groot zijn
     }
 
 out:

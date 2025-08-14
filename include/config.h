@@ -5,6 +5,7 @@
  http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#2.1
 */
 #define CHIP8_MEMORY_SIZE 4096
+#define CHIP8_PROGRAM_LOAD_ADDRESS 0x200
 #define CHIP8_WIDTH 64 
 #define CHIP8_HEIGHT 32
 // Schaalfactor voor het venster, omdat de chip8 display 64x32 is
