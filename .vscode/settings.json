@@ -1,0 +1,5 @@
+{
+    "files.associations": {
+        "chip8screen.h": "c"
+    }
+}
