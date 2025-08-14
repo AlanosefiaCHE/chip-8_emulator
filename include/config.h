@@ -12,5 +12,6 @@
 #define EMULATOR_WINDOW_TITLE "CHIP-8 Emulator"
 
 #define CHIP8_REGISTER_COUNT 16
+#define CHIP8_TOTAL_STACK_DEPTH 16
 
 #endif // CONFIG_H
