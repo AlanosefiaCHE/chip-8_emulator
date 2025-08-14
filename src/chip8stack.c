@@ -20,7 +20,7 @@ void chip8_stack_push(struct chip8* chip8, unsigned short value)
     chip8->registers.SP += 1; // SP naar de volgende vrije plek op de stack
 }
 
-/// @brief Pop a value from the stack
+/// @brief Pop a value from the stack 
 /// @param chip8 
 /// @return 
 unsigned short chip8_stack_pop(struct chip8* chip8)

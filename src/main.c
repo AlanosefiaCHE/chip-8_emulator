@@ -47,9 +47,10 @@ int main(int argc, char *argv[])
     struct chip8 chip8;
     chip8_init(&chip8);
     chip8_load(&chip8, buf, size);
+    
+    printf("Program Counter: %x\n", chip8.registers.PC);
 
     chip8_screen_draw_sprite(&chip8.screen, 62, 10, &chip8.memory.memory[0x00], 5); // Voorbeeld om een sprite te tekenen
-
 
     SDL_Init(SDL_INIT_EVERYTHING);
     SDL_Window *window = SDL_CreateWindow(
@@ -129,8 +130,8 @@ int main(int argc, char *argv[])
             chip8.registers.sound_timer = 0;
         }
         unsigned short opcode = chip8_memory_get_short(&chip8.memory, chip8.registers.PC);
-        chip8_exec(&chip8, opcode); // Voer de instructie uit
         chip8.registers.PC += 2; // Verhoog de Program Counter met 2, omdat de instructies 2 bytes groot zijn
+        chip8_exec(&chip8, opcode); // Voer de instructie uit
     }
 
 out:
