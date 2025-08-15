@@ -7,7 +7,6 @@
 /// @param chip8 
 static void chip8_stack_in_bounds(struct chip8* chip8)
 {
-    printf("Stack Pointer: %d\n", chip8->registers.SP);
       assert(chip8->registers.SP < CHIP8_TOTAL_STACK_DEPTH);
 }
 /// @brief Pushes a value onto the stack.

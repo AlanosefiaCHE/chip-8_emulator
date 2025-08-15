@@ -48,8 +48,11 @@ int main(int argc, char *argv[])
     chip8_init(&chip8);
     chip8_load(&chip8, buf, size);
     
-    printf("Program Counter: %x\n", chip8.registers.PC);
-
+    chip8.registers.I = 0x00;
+    chip8.registers.V[0] = 10; // Zet de eerste register op 0x00 
+    chip8.registers.V[1] = 10; // Zet de eerste register op 0x00
+    chip8_exec(&chip8, 0xD015); 
+    
     chip8_screen_draw_sprite(&chip8.screen, 62, 10, &chip8.memory.memory[0x00], 5); // Voorbeeld om een sprite te tekenen
 
     SDL_Init(SDL_INIT_EVERYTHING);
