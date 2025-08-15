@@ -5,6 +5,7 @@
 #include <time.h>
 #include "chip8.h"
 #include "chip8memory.h"
+#include "SDL2/SDL.h"
 
 const char chip8_default_chracater_set[] = {
     0xf0, 0x90, 0x90, 0x90, 0xf0,
@@ -93,10 +94,87 @@ static void chip8_exec_opcode_eight(struct chip8 *chip8, unsigned short opcode)
     break;
   }
 }
+static char chip8_wait_for_key_press(struct chip8 *chip8)
+{
+  SDL_Event event;
+  while (SDL_WaitEvent(&event))
+  {
+    if (event.type != SDL_KEYDOWN)
+    {
+      continue;
+    }
+    char c = event.key.keysym.sym; // Haal de key uit het event
+    char chip8_key = chip8_keyboard_map(&chip8->keyboard, c); // Map de key naar de virtual key
+    if (chip8_key != -1)
+    {
+      return chip8_key; // Return de virtual key
+    }
+    
+  }
+  return -1;
+}
 
 static void chip8_exec_opcode_f(struct chip8 *chip8, unsigned short opcode)
 {
+  unsigned char x = (opcode >> 8) & 0x000F; // Om x waarde uit opcode te krijgen
 
+  switch (opcode & 0x00ff)
+  {
+    case 0x07: // fx07 - LD Vx, DT set Vx to the delay timer value
+      chip8->registers.V[x] = chip8->registers.delay_timer;
+      break;
+    case 0x0A: 
+    {// fx0A - LD Vx, K wait for a key press and store it in Vx
+    char pressed_key = chip8_wait_for_key_press(chip8);
+    chip8 -> registers.V[x] = pressed_key; // Zet de key in Vx
+    }
+    break;
+
+    case 0x15: // fx15 - LD DT, Vx set the delay timer to Vx
+      chip8->registers.delay_timer = chip8->registers.V[x];
+      break;
+
+    case 0x18: // fx18 - LD ST, Vx set the sound timer to Vx
+      chip8->registers.sound_timer = chip8->registers.V[x];
+      break;
+
+    case 0x1e: // fx1E - ADD I, Vx add Vx to I
+      chip8->registers.I += chip8->registers.V[x];
+      break;
+
+    case 0x29: // fx29 - LD F, Vx set I to the location of the sprite for digit Vx
+      chip8->registers.I = chip8->registers.V[x] * CHIP8_DEFAULT_SPRITE_HEIGHT;
+      break;
+    case 0x33:
+    {
+      unsigned char hundreds = chip8->registers.V[x]/100;
+      unsigned char tens = (chip8->registers.V[x] / 10) % 10;
+      unsigned char units = chip8->registers.V[x] % 10;
+      
+      chip8_memory_set(&chip8 -> memory, chip8-> registers.I, hundreds);
+      chip8_memory_set(&chip8 -> memory, chip8-> registers.I+1, tens);
+      chip8_memory_set(&chip8 -> memory, chip8-> registers.I+2, units);
+    }
+    break;
+
+    case 0x55: //fx55 LD [I], Vx
+    {
+      for (int i = 0; i <= x; i++)
+      {
+        chip8_memory_set(&chip8->memory, chip8->registers.I + i, chip8->registers.V[i]);
+      }
+    }
+    break;
+
+    case 0x65: // fx65 - LD Vx, [I] read registers V0 to Vx from memory starting at address I
+    {
+      for (int i = 0; i <= x; i++)
+      {
+        chip8->registers.V[i] = chip8_memory_get(&chip8->memory, chip8->registers.I + i);
+      }
+    }
+    break;
+  }
 }
 
 /// @brief Handle extended opcodes here
@@ -104,13 +182,13 @@ static void chip8_exec_opcode_f(struct chip8 *chip8, unsigned short opcode)
 /// @param opcode
 static void chip8_exec_extended(struct chip8 *chip8, unsigned short opcode)
 {
-  unsigned short nnn = opcode & 0x0FFF;     // nnn is de 12 bits die de adres aanduidt
-  unsigned char x = (opcode >> 8) & 0x000F; // Om x waarde uit opcode te krijgen
-  unsigned char y = (opcode >> 4) & 0x000F; // Om y waarde uit opcode te krijgen
-  unsigned char kk = opcode & 0x00FF;
-  unsigned char n = opcode & 0x000F; // Height of the sprite
+  unsigned short nnn = opcode & 0x0fff;     // nnn is de 12 bits die de adres aanduidt
+  unsigned char x = (opcode >> 8) & 0x000f; // Om x waarde uit opcode te krijgen
+  unsigned char y = (opcode >> 4) & 0x000f; // Om y waarde uit opcode te krijgen
+  unsigned char kk = opcode & 0x00ff;
+  unsigned char n = opcode & 0x000f; // Height of the sprite
 
-  switch (opcode & 0xF000) // 0f000 is een mask die zorgt dat alleen de eerste 4 bits worden bekeken
+  switch (opcode & 0xf000) // 0f000 is een mask die zorgt dat alleen de eerste 4 bits worden bekeken
   {
   case 0x1000:                 // JP addr, 1nnn Jump to location nnns
     chip8->registers.PC = nnn; // Zet de Program Counter naar het adres

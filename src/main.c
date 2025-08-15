@@ -47,14 +47,11 @@ int main(int argc, char *argv[])
     struct chip8 chip8;
     chip8_init(&chip8);
     chip8_load(&chip8, buf, size);
-    
-    chip8.registers.I = 0x00;
-    chip8.registers.V[0] = 10; // Zet de eerste register op 0x00 
-    chip8.registers.V[1] = 10; // Zet de eerste register op 0x00
-    chip8_exec(&chip8, 0xD015); 
-    
-    chip8_screen_draw_sprite(&chip8.screen, 62, 10, &chip8.memory.memory[0x00], 5); // Voorbeeld om een sprite te tekenen
+    chip8_keyboard_set_map(&chip8.keyboard, keyboard_map);
 
+
+    
+    
     SDL_Init(SDL_INIT_EVERYTHING);
     SDL_Window *window = SDL_CreateWindow(
         EMULATOR_WINDOW_TITLE,
@@ -63,6 +60,10 @@ int main(int argc, char *argv[])
         CHIP8_WIDTH * CHIP8_WINDOW_MULTIPLIER, CHIP8_HEIGHT * CHIP8_WINDOW_MULTIPLIER, SDL_WINDOW_SHOWN);
 
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_TEXTUREACCESS_TARGET);
+
+        chip8.registers.V[0] = 0x00;
+    chip8_exec(&chip8, 0xF00A); // Clear the screen
+    printf("TEST: %x\n", chip8.registers.V[0]);
 
     while (1)
     {
@@ -78,11 +79,10 @@ int main(int argc, char *argv[])
             case SDL_KEYDOWN:
             {
                 char key = event.key.keysym.sym;
-                int virtual_key = chip8_keyboard_map(keyboard_map, key); // mapt event key naar virtual key
+                int virtual_key = chip8_keyboard_map(&chip8.keyboard, key); // mapt event key naar virtual key
                 if (virtual_key != -1)
                 {
                     chip8_pressed_key(&chip8.keyboard, virtual_key);
-                    printf("key is down %x\n", virtual_key);
                 }
             }
             break;
@@ -90,11 +90,11 @@ int main(int argc, char *argv[])
             case SDL_KEYUP:
             {
                 char key = event.key.keysym.sym;
-                int virtual_key = chip8_keyboard_map(keyboard_map, key);
+                int virtual_key = chip8_keyboard_map(&chip8.keyboard, key);
                 if (virtual_key != -1)
                 {
                     chip8_released_key(&chip8.keyboard, virtual_key);
-                    printf("key is up %x\n", virtual_key);
+
                 }
             }
             break;
