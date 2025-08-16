@@ -272,7 +272,7 @@ static void chip8_exec_extended(struct chip8 *chip8, unsigned short opcode)
 
   }
   break;
-  case 0xF00:
+  case 0xF000:
   chip8_exec_opcode_f(chip8, opcode);
     break;
   }
