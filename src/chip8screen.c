@@ -1,6 +1,7 @@
 #include "chip8screen.h"
 #include <assert.h>
 #include <memory.h>
+#include <stdio.h>  
 
 static void chip8_screen_check_bounds(int x, int y)
 {
@@ -29,13 +30,17 @@ bool chip8_screen_draw_sprite(struct chip8_screen *screen, int x, int y, const c
         char c = sprite[ly]; // Geeft byte in de sprite
         for (int lx = 0 ; lx< 8 ; lx++)
         {
-            if((c & (0b10000000) >> lx) == 0)  // if current bit is 0 then no pixel is set, skip to the next because there is nothing to draw
+            if ((c & (0b10000000 >> lx)) == 0) // if current bit is 0 then no pixel is set, skip to the next because there is nothing to draw
             continue;
-            if(screen ->pixels[ly+y % CHIP8_HEIGHT][lx+x % CHIP8_WIDTH])
+        
+            
+            if(screen->pixels[(ly+y) % CHIP8_HEIGHT][(lx+x) % CHIP8_WIDTH])
             {
                 pixel_collison = true;
             }
-            screen ->pixels[ly+y % CHIP8_HEIGHT][lx+x % CHIP8_WIDTH] ^= true; // Zet de pixel op de schermstructuur
+            screen->pixels[(ly+y) % CHIP8_HEIGHT][(lx+x) % CHIP8_WIDTH] ^= true; // Zet de pixel op de schermstructuur
         }
     }
+    return pixel_collison;
+
 }

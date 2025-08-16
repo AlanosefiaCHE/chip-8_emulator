@@ -61,9 +61,9 @@ int main(int argc, char *argv[])
 
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_TEXTUREACCESS_TARGET);
 
-        chip8.registers.V[0] = 0x00;
+    chip8.registers.V[0] = 0x00;
     chip8_exec(&chip8, 0xF00A); // Clear the screen
-    printf("TEST: %x\n", chip8.registers.V[0]);
+    printf("Register V[0]: %x\n", chip8.registers.V[0]);
 
     while (1)
     {
@@ -123,13 +123,12 @@ int main(int argc, char *argv[])
         SDL_RenderPresent(renderer);
         if(chip8.registers.delay_timer > 0)
         {
-            Sleep(100);
+            Sleep(1);
             chip8.registers.delay_timer-=1;
-            printf("Delay timer!!!!: %d\n", chip8.registers.delay_timer);
         }
         if(chip8.registers.sound_timer > 0)
         {
-            Beep(25000, 100 * chip8.registers.sound_timer); // Speel een piep geluid af
+            Beep(15000, 100 * chip8.registers.sound_timer); // Speel een piep geluid af
             chip8.registers.sound_timer = 0;
         }
         unsigned short opcode = chip8_memory_get_short(&chip8.memory, chip8.registers.PC);
